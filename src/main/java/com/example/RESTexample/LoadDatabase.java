@@ -9,9 +9,9 @@ import org.springframework.context.annotation.Configuration;
 //declare that this class provides one or more @Bean methods
 // and may be processed by the Spring container to generate
 // bean definitions and service requests for those beans at runtime.
-@Slf4j
 // autocreate an Slf4j-based LoggerFactory as log,
 // allowing us to log these newly created "employees"
+@Slf4j
 public class LoadDatabase {
 
     @Bean
