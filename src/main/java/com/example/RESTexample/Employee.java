@@ -8,7 +8,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
 @Data
-//@NoArgsConstructor
+@NoArgsConstructor
 //@Data is a Lombok annotation to create all the getters,
 // setters, equals, hash, and toString methods, based on the fields
 @Entity
@@ -18,8 +18,6 @@ public class Employee {
     private String firstName;
     private String lastName;
     private String role;
-
-    Employee(){}
 
     Employee(String firstName, String lastName, String role) {
         this.firstName = firstName;
