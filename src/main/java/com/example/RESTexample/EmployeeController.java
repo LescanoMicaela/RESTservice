@@ -17,9 +17,11 @@ public class EmployeeController {
 
     //Injecting dependencies by constructor.
     private final EmployeeRepository repository;
+    private final EmployeeResourceAssembler assembler;
 
-    EmployeeController(EmployeeRepository repository){
+    EmployeeController(EmployeeRepository repository, EmployeeResourceAssembler assembler){
         this.repository = repository;
+        this.assembler = assembler;
     }
 
     //Root
@@ -27,11 +29,17 @@ public class EmployeeController {
     //added aplication/json so can be tested on chrome with no exceptions, not just POSTMAN
     @GetMapping(value="/employees", produces = "application/json; charset=UTF-8")
     Resources<Resource<Employee>> findAll(){
+        //Resources encapsulate collections of employee resources
         List<Resource<Employee>> employees = repository.findAll().stream()
-                .map(employee -> getResource(employee))
+//                .map(employee -> getResource(employee))
+                //Refactored with a private method
 //                        new Resource<>(employee,
 //                        linkTo(methodOn(EmployeeController.class).findOne(employee.getId())).withSelfRel(),
 //                        linkTo(methodOn(EmployeeController.class).findAll()).withRel("employees")))
+
+                //ussign assembler to create resource
+                .map(assembler::toResource)
+                //method references
                 .collect(Collectors.toList());
         return new Resources<>(employees,
                 linkTo(methodOn(EmployeeController.class).findAll()).withSelfRel());
@@ -53,7 +61,11 @@ public class EmployeeController {
 //                // asks Spring HATEOAS to build a link to the aggregate root,
 //                // findAll(), and call it "employees".
 //                linkTo(methodOn(EmployeeController.class).findAll()).withRel("employees"));
-        return getResource(employee);
+//        return getResource(employee);
+
+        //ussing assembler to return the resource
+        return assembler.toResource(employee);
+
     }
 
     @PutMapping("/employees/{id}")
@@ -74,13 +86,13 @@ public class EmployeeController {
         repository.deleteById(id);
     }
 
-    private Resource<Employee> getResource(Employee employee){
-        return new Resource<>(employee,
-                // asks that Spring HATEOAS build a link to the EmployeeController's
-                // findOne() method, and flag it as a self link.
-                linkTo(methodOn(EmployeeController.class).findOne(employee.getId())).withSelfRel(),
-                // asks Spring HATEOAS to build a link to the aggregate root,
-                // findAll(), and call it "employees".
-                linkTo(methodOn(EmployeeController.class).findAll()).withRel("employees"));
-    }
+//    private Resource<Employee> getResource(Employee employee){
+//        return new Resource<>(employee,
+//                // asks that Spring HATEOAS build a link to the EmployeeController's
+//                // findOne() method, and flag it as a self link.
+//                linkTo(methodOn(EmployeeController.class).findOne(employee.getId())).withSelfRel(),
+//                // asks Spring HATEOAS to build a link to the aggregate root,
+//                // findAll(), and call it "employees".
+//                linkTo(methodOn(EmployeeController.class).findAll()).withRel("employees"));
+//    }
 }
