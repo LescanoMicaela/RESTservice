@@ -2,8 +2,11 @@ package com.example.RESTexample;
 
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,7 +28,8 @@ public class EmployeeController {
     }
 
     //Root
-//    @GetMapping("/employees") this path can be only test on POSTMAN
+//    @GetMapping("/employees")
+// this path can be only test on POSTMAN
     //added aplication/json so can be tested on chrome with no exceptions, not just POSTMAN
     @GetMapping(value="/employees", produces = "application/json; charset=UTF-8")
     Resources<Resource<Employee>> findAll(){
@@ -46,9 +50,16 @@ public class EmployeeController {
     }
 
     //new to refacotr to not save in controller
-    @PostMapping("employees")
-    Employee register(@RequestBody Employee newEmployee){
-        return repository.save(newEmployee);
+//    @PostMapping("employees")
+    @PostMapping(value="/employees", produces = "application/json; charset=UTF-8")
+
+    ResponseEntity<?> register(@RequestBody Employee newEmployee) throws URISyntaxException {
+        //The new Employee object is saved,
+        // But the resulting object is wrapped using the EmployeeResourceAssembler.
+        Resource<Employee> resource = assembler.toResource(repository.save(newEmployee));
+        return ResponseEntity
+                .created(new URI(resource.getId().expand().getHref()))
+                .body(resource);
     }
 
     @GetMapping(value="/employees/{id}", produces = "application/json; charset=UTF-8")
